@@ -1,8 +1,9 @@
 package semantic.Symbol;
 
-import CodeGenerator.*;
 import CodeGenerator.Address.Address;
 import CodeGenerator.Address.ImmediateAddress;
+import CodeGenerator.Memory;
+import CodeGenerator.varType;
 import ErrorHandler.ErrorHandler;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class SymbolTable {
         keyWords = new HashMap<>();
         Address address1 = new ImmediateAddress(1, varType.Bool);
         keyWords.put("true", address1);
-        Address address2 = new ImmediateAddress(0,varType.Bool);
+        Address address2 = new ImmediateAddress(0, varType.Bool);
         keyWords.put("false", address2);
     }
 
@@ -121,13 +122,13 @@ public class SymbolTable {
     }
 
     class Method {
+        private final List<String> orderedParameters;
         public int codeAddress;
         public Map<String, Symbol> parameters;
         public Map<String, Symbol> localVariable;
         public int callerAddress;
         public int returnAddress;
         public SymbolType returnType;
-        private final List<String> orderedParameters;
         private int index;
 
         public Method(int codeAddress, SymbolType returnType) {
@@ -159,5 +160,4 @@ public class SymbolTable {
             return parameters.get(orderedParameters.get(index++));
         }
     }
-
 }

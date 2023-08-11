@@ -30,7 +30,7 @@ public class ParseTable {
                     temp = temp;
                 }
             } else {
-                terminals.put(i, new Token(Token.getTyepFormString(cols[i]), cols[i]));
+                terminals.put(i, new Token(Token.getTypeFormString(cols[i]), cols[i]));
             }
         }
         actionTable = new ArrayList<Map<Token, Action>>();
