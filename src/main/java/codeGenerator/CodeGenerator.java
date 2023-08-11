@@ -1,6 +1,10 @@
 package codeGenerator;
 
 import Log.Log;
+import codeGenerator.Address.Address;
+import codeGenerator.Address.DirectAddress;
+import codeGenerator.Address.ImmediateAddress;
+import codeGenerator.Address.IndirectAddress;
 import errorHandler.ErrorHandler;
 import scanner.token.Token;
 import semantic.symbol.Symbol;
@@ -201,17 +205,7 @@ public class CodeGenerator {
             try {
 
                 Symbol s = this.getSymbolTable().get(className, methodName, next.value);
-                varType t = varType.Int;
-                switch (s.type) {
-                    case Bool:
-                        t = varType.Bool;
-                        break;
-                    case Int:
-                        t = varType.Int;
-                        break;
-                }
-                Address address = new DirectAddress(s.address, t);
-                this.getSs().push(address);
+                pushAddress(s);
 
 
             } catch (Exception e) {
@@ -227,11 +221,7 @@ public class CodeGenerator {
         this.getSymbolStack().push(next.value);
     }
 
-    public void fpid() {
-        this.getSs().pop();
-        this.getSs().pop();
-
-        Symbol s = this.getSymbolTable().get(this.getSymbolStack().pop(), this.getSymbolStack().pop());
+    private void pushAddress(Symbol s) {
         varType t = varType.Int;
         switch (s.type) {
             case Bool:
@@ -243,6 +233,14 @@ public class CodeGenerator {
         }
         Address address = new DirectAddress(s.address, t);
         this.getSs().push(address);
+    }
+
+    public void fpid() {
+        this.getSs().pop();
+        this.getSs().pop();
+
+        Symbol s = this.getSymbolTable().get(this.getSymbolStack().pop(), this.getSymbolStack().pop());
+        pushAddress(s);
     }
 
     public void kpid(Token next) {
