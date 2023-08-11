@@ -18,7 +18,7 @@ import java.util.Stack;
  */
 public class CodeGenerator {
     private Memory memory = new Memory();
-    private Stack<Address> ss = new Stack<Address>();
+    private Stack<Address> ss = new Stack<>();
     private Stack<String> symbolStack = new Stack<>();
     private Stack<String> callStack = new Stack<>();
     private SymbolTable symbolTable;
@@ -191,23 +191,20 @@ public class CodeGenerator {
     }
 
 
-    public void checkID() {
+    private void checkID() {
         this.getSymbolStack().pop();
         if (this.getSs().peek().varType == varType.Non) {
             //TODO : error
         }
     }
 
-    public void pid(Token next) {
+    private void pid(Token next) {
         if (this.getSymbolStack().size() > 1) {
             String methodName = this.getSymbolStack().pop();
             String className = this.getSymbolStack().pop();
             try {
-
                 Symbol s = this.getSymbolTable().get(className, methodName, next.value);
                 pushAddress(s);
-
-
             } catch (Exception e) {
                 Address address = new DirectAddress(0, varType.Non);
                 this.getSs().push(address);
@@ -235,7 +232,7 @@ public class CodeGenerator {
         this.getSs().push(address);
     }
 
-    public void fpid() {
+    private void fpid() {
         this.getSs().pop();
         this.getSs().pop();
 
@@ -243,16 +240,16 @@ public class CodeGenerator {
         pushAddress(s);
     }
 
-    public void kpid(Token next) {
+    private void kpid(Token next) {
         this.getSs().push(this.getSymbolTable().get(next.value));
     }
 
-    public void intpid(Token next) {
+    private void intpid(Token next) {
         Address address = new ImmediateAddress(Integer.parseInt(next.value), varType.Int);
         this.getSs().push(address);
     }
 
-    public void startCall() {
+    private void startCall() {
         this.getSs().pop();
         this.getSs().pop();
         String methodName = this.getSymbolStack().pop();
@@ -262,13 +259,13 @@ public class CodeGenerator {
         this.getCallStack().push(methodName);
     }
 
-    public void call() {
+    private void call() {
         String methodName = this.getCallStack().pop();
         String className = this.getCallStack().pop();
         try {
             this.getSymbolTable().getNextParam(className, methodName);
             ErrorHandler.printError("The few argument pass for method");
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
         varType t = varType.Int;
         switch (this.getSymbolTable().getMethodReturnType(className, methodName)) {
@@ -291,7 +288,7 @@ public class CodeGenerator {
         this.getMemory().add3AddressCode(Operation.JP, address5, null, null);
     }
 
-    public void arg() {
+    private void arg() {
         String methodName = this.getCallStack().pop();
         try {
             Symbol s = this.getSymbolTable().getNextParam(this.getCallStack().peek(), methodName);
@@ -317,7 +314,7 @@ public class CodeGenerator {
         this.getCallStack().push(methodName);
     }
 
-    public void assign() {
+    private void assign() {
         Address s1 = this.getSs().pop();
         Address s2 = this.getSs().pop();
         if (s1.varType != s2.varType) {
@@ -326,7 +323,7 @@ public class CodeGenerator {
         this.getMemory().add3AddressCode(Operation.ASSIGN, s1, s2, null);
     }
 
-    public void add() {
+    private void add() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -338,7 +335,7 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void sub() {
+    private void sub() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -349,7 +346,7 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void mult() {
+    private void mult() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -360,39 +357,39 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void label() {
+    private void label() {
         Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
         this.getSs().push(address);
     }
 
-    public void save() {
+    private void save() {
         Address address = new DirectAddress(this.getMemory().saveMemory(), varType.Address);
         this.getSs().push(address);
     }
 
-    public void _while() {
+    private void _while() {
         Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress() + 1, varType.Address);
         this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), address, null);
         this.getMemory().add3AddressCode(Operation.JP, this.getSs().pop(), null, null);
     }
 
-    public void jpfSave() {
+    private void jpfSave() {
         Address save = new DirectAddress(this.getMemory().saveMemory(), varType.Address);
         Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
         this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), address, null);
         this.getSs().push(save);
     }
 
-    public void jpHere() {
+    private void jpHere() {
         Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
         this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, address, null, null);
     }
 
-    public void print() {
+    private void print() {
         this.getMemory().add3AddressCode(Operation.PRINT, this.getSs().pop(), null, null);
     }
 
-    public void equal() {
+    private void equal() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -403,7 +400,7 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void lessThan() {
+    private void lessThan() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -414,7 +411,7 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void and() {
+    private void and() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -425,7 +422,7 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void not() {
+    private void not() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -436,12 +433,12 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void defClass() {
+    private void defClass() {
         this.getSs().pop();
         this.getSymbolTable().addClass(this.getSymbolStack().peek());
     }
 
-    public void defMethod() {
+    private void defMethod() {
         this.getSs().pop();
         String methodName = this.getSymbolStack().pop();
         String className = this.getSymbolStack().pop();
@@ -452,21 +449,21 @@ public class CodeGenerator {
         this.getSymbolStack().push(methodName);
     }
 
-    public void popClass() {
+    private void popClass() {
         this.getSymbolStack().pop();
     }
 
-    public void extend() {
+    private void extend() {
         this.getSs().pop();
         this.getSymbolTable().setSuperClass(this.getSymbolStack().pop(), this.getSymbolStack().peek());
     }
 
-    public void defField() {
+    private void defField() {
         this.getSs().pop();
         this.getSymbolTable().addField(this.getSymbolStack().pop(), this.getSymbolStack().peek());
     }
 
-    public void defVar() {
+    private void defVar() {
         this.getSs().pop();
 
         String var = this.getSymbolStack().pop();
@@ -479,7 +476,7 @@ public class CodeGenerator {
         this.getSymbolStack().push(methodName);
     }
 
-    public void methodReturn() {
+    private void methodReturn() {
         String methodName = this.getSymbolStack().pop();
         Address s = this.getSs().pop();
         SymbolType t = this.getSymbolTable().getMethodReturnType(this.getSymbolStack().peek(), methodName);
@@ -499,7 +496,7 @@ public class CodeGenerator {
         this.getMemory().add3AddressCode(Operation.JP, address2, null, null);
     }
 
-    public void defParam() {
+    private void defParam() {
         this.getSs().pop();
         String param = this.getSymbolStack().pop();
         String methodName = this.getSymbolStack().pop();
@@ -511,14 +508,14 @@ public class CodeGenerator {
         this.getSymbolStack().push(methodName);
     }
 
-    public void lastTypeBool() {
+    private void lastTypeBool() {
         this.getSymbolTable().setLastType(SymbolType.Bool);
     }
 
-    public void lastTypeInt() {
+    private void lastTypeInt() {
         this.getSymbolTable().setLastType(SymbolType.Int);
     }
 
-    public void main() {
+    private void main() {
     }
 }
