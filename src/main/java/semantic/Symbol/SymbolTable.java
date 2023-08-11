@@ -32,7 +32,11 @@ public class SymbolTable {
     }
 
     public void addClass(String className) {
-        if (klasses.containsKey(className)) {
+        try {
+            if (klasses.containsKey(className)) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
             ErrorHandler.printError("This class already defined");
         }
         klasses.put(className, new Klass());
@@ -43,7 +47,11 @@ public class SymbolTable {
     }
 
     public void addMethod(String className, String methodName, int address) {
-        if (klasses.get(className).Methods.containsKey(methodName)) {
+        try {
+            if (klasses.get(className).Methods.containsKey(methodName)) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
             ErrorHandler.printError("This method already defined");
         }
         klasses.get(className).Methods.put(methodName, new Method(address, lastType));
@@ -54,7 +62,11 @@ public class SymbolTable {
     }
 
     public void addMethodLocalVariable(String className, String methodName, String localVariableName) {
-        if (klasses.get(className).Methods.get(methodName).localVariable.containsKey(localVariableName)) {
+        try {
+            if (klasses.get(className).Methods.get(methodName).localVariable.containsKey(localVariableName)) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
             ErrorHandler.printError("This variable already defined");
         }
         klasses.get(className).Methods.get(methodName).localVariable.put(localVariableName, new Symbol(lastType, mem.getDateAddress()));

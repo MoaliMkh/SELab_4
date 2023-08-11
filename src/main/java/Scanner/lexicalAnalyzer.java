@@ -24,17 +24,20 @@ public class lexicalAnalyzer {
 
     public Token getNextToken() {
         while (matcher.find()) {
-            for (Type t : Type.values()) {
-                if (matcher.group(t.name()) != null) {
-                    if (matcher.group(Type.COMMENT.name()) != null) {
-                        break;
+            try {
+                for (Type t : Type.values()) {
+                    if (matcher.group(t.name()) != null) {
+                        if (matcher.group(Type.COMMENT.name()) != null) {
+                            break;
+                        }
+                        if (matcher.group(Type.ErrorID.name()) != null) {
+                            throw new Exception();
+                        }
+                        return new Token(t, matcher.group(t.name()));
                     }
-                    if (matcher.group(Type.ErrorID.name()) != null) {
-                        ErrorHandler.printError("The id must start with character");
-                        break;
-                    }
-                    return new Token(t, matcher.group(t.name()));
                 }
+            } catch (Exception e) {
+                ErrorHandler.printError("The id must start with character");
             }
         }
         return new Token(Type.EOF, "$");
