@@ -10,7 +10,7 @@ public class SymbolFacade {
         this.symbolTable = new SymbolTable(memory);
     }
 
-    public void addMethod(String className, String methodName, int currentCodeBlockAddress) {
+    public void addMethodToTable(String className, String methodName, int currentCodeBlockAddress) {
         this.symbolTable.addMethod(className, methodName, currentCodeBlockAddress);
     }
 
@@ -50,11 +50,11 @@ public class SymbolFacade {
         this.symbolTable.setSuperClass(pop, peek);
     }
 
-    public void addField(String pop, String peek) {
+    public void addFieldToTable(String pop, String peek) {
         this.symbolTable.addField(pop, peek);
     }
 
-    public void addClass(String peek) {
+    public void addClassToTable(String peek) {
         this.symbolTable.addClass(peek);
     }
 

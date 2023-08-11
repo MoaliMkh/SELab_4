@@ -182,7 +182,7 @@ public class CodeGenerator {
         String methodName = "main";
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolFacade().addMethod(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
+        this.getSymbolFacade().addMethodToTable(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
 
         this.getSymbolStack().push(className);
         this.getSymbolStack().push(methodName);
@@ -430,7 +430,7 @@ public class CodeGenerator {
 
     private void defClass() {
         this.getSs().pop();
-        this.getSymbolFacade().addClass(this.getSymbolStack().peek());
+        this.getSymbolFacade().addClassToTable(this.getSymbolStack().peek());
     }
 
     private void defMethod() {
@@ -438,7 +438,7 @@ public class CodeGenerator {
         String methodName = this.getSymbolStack().pop();
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolFacade().addMethod(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
+        this.getSymbolFacade().addMethodToTable(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
 
         this.getSymbolStack().push(className);
         this.getSymbolStack().push(methodName);
@@ -455,7 +455,7 @@ public class CodeGenerator {
 
     private void defField() {
         this.getSs().pop();
-        this.getSymbolFacade().addField(this.getSymbolStack().pop(), this.getSymbolStack().peek());
+        this.getSymbolFacade().addFieldToTable(this.getSymbolStack().pop(), this.getSymbolStack().peek());
     }
 
     private void defVar() {
