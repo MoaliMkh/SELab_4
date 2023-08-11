@@ -175,7 +175,8 @@ public class CodeGenerator {
     }
 
     private void defMain() {
-        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, new Address(this.getMemory().getCurrentCodeBlockAddress(), varType.Address), null, null);
+        Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
+        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, address, null, null);
         String methodName = "main";
         String className = this.getSymbolStack().pop();
 
@@ -209,16 +210,19 @@ public class CodeGenerator {
                         t = varType.Int;
                         break;
                 }
-                this.getSs().push(new Address(s.address, t));
+                Address address = new DirectAddress(s.address, t);
+                this.getSs().push(address);
 
 
             } catch (Exception e) {
-                this.getSs().push(new Address(0, varType.Non));
+                Address address = new DirectAddress(0, varType.Non);
+                this.getSs().push(address);
             }
             this.getSymbolStack().push(className);
             this.getSymbolStack().push(methodName);
         } else {
-            this.getSs().push(new Address(0, varType.Non));
+            Address address = new DirectAddress(0, varType.Non);
+            this.getSs().push(address);
         }
         this.getSymbolStack().push(next.value);
     }
@@ -237,7 +241,8 @@ public class CodeGenerator {
                 t = varType.Int;
                 break;
         }
-        this.getSs().push(new Address(s.address, t));
+        Address address = new DirectAddress(s.address, t);
+        this.getSs().push(address);
     }
 
     public void kpid(Token next) {
@@ -245,7 +250,8 @@ public class CodeGenerator {
     }
 
     public void intpid(Token next) {
-        this.getSs().push(new Address(Integer.parseInt(next.value), varType.Int, TypeAddress.Imidiate));
+        Address address = new ImmediateAddress(Integer.parseInt(next.value), varType.Int);
+        this.getSs().push(address);
     }
 
     public void startCall() {
@@ -275,11 +281,16 @@ public class CodeGenerator {
                 t = varType.Bool;
                 break;
         }
-        Address temp = new Address(this.getMemory().getTemp(), t);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), t);
         this.getSs().push(temp);
-        this.getMemory().add3AddressCode(Operation.ASSIGN, new Address(temp.num, varType.Address, TypeAddress.Imidiate), new Address(this.getSymbolTable().getMethodReturnAddress(className, methodName), varType.Address), null);
-        this.getMemory().add3AddressCode(Operation.ASSIGN, new Address(this.getMemory().getCurrentCodeBlockAddress() + 2, varType.Address, TypeAddress.Imidiate), new Address(this.getSymbolTable().getMethodCallerAddress(className, methodName), varType.Address), null);
-        this.getMemory().add3AddressCode(Operation.JP, new Address(this.getSymbolTable().getMethodAddress(className, methodName), varType.Address), null, null);
+        Address address1 = new ImmediateAddress(temp.num, varType.Address);
+        Address address2 = new DirectAddress(this.getSymbolTable().getMethodReturnAddress(className, methodName), varType.Address);
+        this.getMemory().add3AddressCode(Operation.ASSIGN, address1, address2, null);
+        Address address3 = new ImmediateAddress(this.getMemory().getCurrentCodeBlockAddress() + 2, varType.Address);
+        Address address4 = new DirectAddress(this.getSymbolTable().getMethodCallerAddress(className, methodName), varType.Address);
+        this.getMemory().add3AddressCode(Operation.ASSIGN, address3, address4, null);
+        Address address5 = new DirectAddress(this.getSymbolTable().getMethodAddress(className, methodName), varType.Address);
+        this.getMemory().add3AddressCode(Operation.JP, address5, null, null);
     }
 
     public void arg() {
@@ -299,7 +310,8 @@ public class CodeGenerator {
             if (param.varType != t) {
                 ErrorHandler.printError("The argument type isn't match");
             }
-            this.getMemory().add3AddressCode(Operation.ASSIGN, param, new Address(s.address, t), null);
+            Address address = new DirectAddress(s.address, t);
+            this.getMemory().add3AddressCode(Operation.ASSIGN, param, address, null);
 
         } catch (IndexOutOfBoundsException e) {
             ErrorHandler.printError("Too many arguments pass for method");
@@ -317,7 +329,7 @@ public class CodeGenerator {
     }
 
     public void add() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Int);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
 
@@ -329,7 +341,7 @@ public class CodeGenerator {
     }
 
     public void sub() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Int);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
         if (s1.varType != varType.Int || s2.varType != varType.Int) {
@@ -340,7 +352,7 @@ public class CodeGenerator {
     }
 
     public void mult() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Int);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
         if (s1.varType != varType.Int || s2.varType != varType.Int) {
@@ -351,26 +363,31 @@ public class CodeGenerator {
     }
 
     public void label() {
-        this.getSs().push(new Address(this.getMemory().getCurrentCodeBlockAddress(), varType.Address));
+        Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
+        this.getSs().push(address);
     }
 
     public void save() {
-        this.getSs().push(new Address(this.getMemory().saveMemory(), varType.Address));
+        Address address = new DirectAddress(this.getMemory().saveMemory(), varType.Address);
+        this.getSs().push(address);
     }
 
     public void _while() {
-        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), new Address(this.getMemory().getCurrentCodeBlockAddress() + 1, varType.Address), null);
+        Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress() + 1, varType.Address);
+        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), address, null);
         this.getMemory().add3AddressCode(Operation.JP, this.getSs().pop(), null, null);
     }
 
     public void jpf_save() {
-        Address save = new Address(this.getMemory().saveMemory(), varType.Address);
-        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), new Address(this.getMemory().getCurrentCodeBlockAddress(), varType.Address), null);
+        Address save = new DirectAddress(this.getMemory().saveMemory(), varType.Address);
+        Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
+        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), address, null);
         this.getSs().push(save);
     }
 
     public void jpHere() {
-        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, new Address(this.getMemory().getCurrentCodeBlockAddress(), varType.Address), null, null);
+        Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
+        this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, address, null, null);
     }
 
     public void print() {
@@ -378,7 +395,7 @@ public class CodeGenerator {
     }
 
     public void equal() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Bool);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
         if (s1.varType != s2.varType) {
@@ -389,7 +406,7 @@ public class CodeGenerator {
     }
 
     public void less_than() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Bool);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
         if (s1.varType != varType.Int || s2.varType != varType.Int) {
@@ -400,7 +417,7 @@ public class CodeGenerator {
     }
 
     public void and() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Bool);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
         if (s1.varType != varType.Bool || s2.varType != varType.Bool) {
@@ -411,7 +428,7 @@ public class CodeGenerator {
     }
 
     public void not() {
-        Address temp = new Address(this.getMemory().getTemp(), varType.Bool);
+        Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
         if (s1.varType != varType.Bool) {
@@ -478,8 +495,10 @@ public class CodeGenerator {
         if (s.varType != temp) {
             ErrorHandler.printError("The type of method and return address was not match");
         }
-        this.getMemory().add3AddressCode(Operation.ASSIGN, s, new Address(this.getSymbolTable().getMethodReturnAddress(this.getSymbolStack().peek(), methodName), varType.Address, TypeAddress.Indirect), null);
-        this.getMemory().add3AddressCode(Operation.JP, new Address(this.getSymbolTable().getMethodCallerAddress(this.getSymbolStack().peek(), methodName), varType.Address), null, null);
+        Address address1 = new IndirectAddress(this.getSymbolTable().getMethodReturnAddress(this.getSymbolStack().peek(), methodName), varType.Address);
+        this.getMemory().add3AddressCode(Operation.ASSIGN, s, address1, null);
+        Address address2 = new DirectAddress(this.getSymbolTable().getMethodCallerAddress(this.getSymbolStack().peek(), methodName), varType.Address);
+        this.getMemory().add3AddressCode(Operation.JP, address2, null, null);
     }
 
     public void defParam() {
