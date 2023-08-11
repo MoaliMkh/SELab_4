@@ -2,13 +2,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import Parser.Parser;
+import Parser.ParserFacade;
 
 public class Main {
     public static void main(String[] args) {
-        Parser parser = new Parser();
+        ParserFacade parserFacade = new Parser.ParserFacade();
         try {
-            parser.startParse(new Scanner(new File("src/main/resources/code")));
+            parserFacade.startParse(new Scanner(new File("src/main/resources/code")));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
