@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class lexicalAnalyzer {
-    private Matcher matcher;
+    private final Matcher matcher;
 
     public lexicalAnalyzer(java.util.Scanner sc) {
         StringBuilder input = new StringBuilder();
