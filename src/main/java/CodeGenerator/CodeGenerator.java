@@ -323,12 +323,20 @@ public class CodeGenerator {
         this.getMemory().add3AddressCode(Operation.ASSIGN, s1, s2, null);
     }
 
+    private boolean isValidInt(Address address1, Address address2) {
+        return address1.varType != varType.Int || address2.varType != varType.Int;
+    }
+
+    private boolean isValidBool(Address address1, Address address2) {
+        return address1.varType != varType.Bool || address2.varType != varType.Bool;
+    }
+
     private void add() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
 
-        if (s1.varType != varType.Int || s2.varType != varType.Int) {
+        if (this.isValidInt(s1, s2)) {
             ErrorHandler.printError("In add two operands must be integer");
         }
         this.getMemory().add3AddressCode(Operation.ADD, s1, s2, temp);
@@ -339,7 +347,7 @@ public class CodeGenerator {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
-        if (s1.varType != varType.Int || s2.varType != varType.Int) {
+        if (isValidInt(s1, s2)) {
             ErrorHandler.printError("In sub two operands must be integer");
         }
         this.getMemory().add3AddressCode(Operation.SUB, s1, s2, temp);
@@ -350,7 +358,7 @@ public class CodeGenerator {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Int);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
-        if (s1.varType != varType.Int || s2.varType != varType.Int) {
+        if (isValidInt(s1, s2)) {
             ErrorHandler.printError("In mult two operands must be integer");
         }
         this.getMemory().add3AddressCode(Operation.MULT, s1, s2, temp);
@@ -404,7 +412,7 @@ public class CodeGenerator {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
-        if (s1.varType != varType.Int || s2.varType != varType.Int) {
+        if (isValidInt(s1, s2)) {
             ErrorHandler.printError("The type of operands in less than operator is different");
         }
         this.getMemory().add3AddressCode(Operation.LT, s1, s2, temp);
@@ -415,7 +423,7 @@ public class CodeGenerator {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
-        if (s1.varType != varType.Bool || s2.varType != varType.Bool) {
+        if (this.isValidBool(s1, s2)) {
             ErrorHandler.printError("In and operator the operands must be boolean");
         }
         this.getMemory().add3AddressCode(Operation.AND, s1, s2, temp);
