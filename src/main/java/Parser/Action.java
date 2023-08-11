@@ -1,4 +1,4 @@
-package parser;
+package Parser;
 
 public class Action {
     public act action;

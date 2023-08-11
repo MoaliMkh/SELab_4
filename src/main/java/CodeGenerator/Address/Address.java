@@ -1,6 +1,6 @@
-package codeGenerator.Address;
+package CodeGenerator.Address;
 
-import codeGenerator.varType;
+import CodeGenerator.varType;
 
 /**
  * Created by mohammad hosein on 6/28/2015.
@@ -8,7 +8,7 @@ import codeGenerator.varType;
 
 public abstract class Address {
     public int num;
-    public codeGenerator.varType varType;
+    public CodeGenerator.varType varType;
 
     public Address(int num, varType varType) {
         this.num = num;

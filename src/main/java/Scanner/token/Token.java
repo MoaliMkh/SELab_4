@@ -1,6 +1,6 @@
-package scanner.token;
+package Scanner.token;
 
-import scanner.type.Type;
+import Scanner.type.Type;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

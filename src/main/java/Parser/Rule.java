@@ -1,6 +1,6 @@
-package parser;
+package Parser;
 
-import scanner.token.Token;
+import Scanner.token.Token;
 
 import java.util.ArrayList;
 
@@ -21,12 +21,12 @@ public class Rule {
         } else {
             semanticAction = 0;
         }
-        String[] splited = stringRule.split("->");
-        LHS = NonTerminal.valueOf(splited[0]);
+        String[] split = stringRule.split("->");
+        LHS = NonTerminal.valueOf(split[0]);
 
-        RHS = new ArrayList<GrammarSymbol>();
-        if (splited.length > 1) {
-            String[] RHSs = splited[1].split(" ");
+        RHS = new ArrayList<>();
+        if (split.length > 1) {
+            String[] RHSs = split[1].split(" ");
             for (String s : RHSs) {
                 try {
                     RHS.add(new GrammarSymbol(NonTerminal.valueOf(s)));

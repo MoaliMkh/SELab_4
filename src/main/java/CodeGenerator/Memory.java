@@ -1,6 +1,6 @@
-package codeGenerator;
+package CodeGenerator;
 
-import codeGenerator.Address.Address;
+import CodeGenerator.Address.Address;
 
 import java.util.ArrayList;
 import java.util.List;

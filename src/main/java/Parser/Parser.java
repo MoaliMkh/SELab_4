@@ -1,4 +1,4 @@
-package parser;
+package Parser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Stack;
 
 import Log.Log;
-import codeGenerator.CodeGenerator;
-import errorHandler.ErrorHandler;
-import scanner.lexicalAnalyzer;
-import scanner.token.Token;
+import CodeGenerator.CodeGenerator;
+import ErrorHandler.ErrorHandler;
+import Scanner.lexicalAnalyzer;
+import Scanner.token.Token;
 
 public class Parser {
     private final List<Rule> rules;
@@ -39,7 +39,7 @@ public class Parser {
     }
 
     public void startParse(java.util.Scanner sc) {
-        scanner.lexicalAnalyzer lexicalAnalyzer = new lexicalAnalyzer(sc);
+        Scanner.lexicalAnalyzer lexicalAnalyzer = new lexicalAnalyzer(sc);
         Token lookAhead = lexicalAnalyzer.getNextToken();
         boolean finish = false;
         Action currentAction;

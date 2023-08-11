@@ -1,9 +1,9 @@
-package semantic.symbol;
+package semantic.Symbol;
 
-import codeGenerator.*;
-import codeGenerator.Address.Address;
-import codeGenerator.Address.ImmediateAddress;
-import errorHandler.ErrorHandler;
+import CodeGenerator.*;
+import CodeGenerator.Address.Address;
+import CodeGenerator.Address.ImmediateAddress;
+import ErrorHandler.ErrorHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;

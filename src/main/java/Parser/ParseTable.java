@@ -1,6 +1,6 @@
-package parser;
+package Parser;
 
-import scanner.token.Token;
+import Scanner.token.Token;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
-package codeGenerator.Address;
+package CodeGenerator.Address;
 
 public class ImmediateAddress extends Address {
-    public ImmediateAddress(int num, codeGenerator.varType varType) {
+    public ImmediateAddress(int num, CodeGenerator.varType varType) {
         super(num, varType);
     }
 

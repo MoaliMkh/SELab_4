@@ -1,15 +1,15 @@
-package codeGenerator;
+package CodeGenerator;
 
 import Log.Log;
-import codeGenerator.Address.Address;
-import codeGenerator.Address.DirectAddress;
-import codeGenerator.Address.ImmediateAddress;
-import codeGenerator.Address.IndirectAddress;
-import errorHandler.ErrorHandler;
-import scanner.token.Token;
-import semantic.symbol.Symbol;
-import semantic.symbol.SymbolTable;
-import semantic.symbol.SymbolType;
+import CodeGenerator.Address.Address;
+import CodeGenerator.Address.DirectAddress;
+import CodeGenerator.Address.ImmediateAddress;
+import CodeGenerator.Address.IndirectAddress;
+import ErrorHandler.ErrorHandler;
+import Scanner.token.Token;
+import semantic.Symbol.Symbol;
+import semantic.Symbol.SymbolTable;
+import semantic.Symbol.SymbolType;
 
 import java.util.Stack;
 
