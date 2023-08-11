@@ -1,5 +1,7 @@
 package Parser;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class ParserFacade {
@@ -9,7 +11,7 @@ public class ParserFacade {
         this.parser = new Parser();
     }
 
-    public void startParse(Scanner scanner) {
-        this.parser.startParse(scanner);
+    public void startParse() throws FileNotFoundException {
+        this.parser.startParse(new Scanner(new File("src/main/resources/code")));
     }
 }
