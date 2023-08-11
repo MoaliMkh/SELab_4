@@ -122,7 +122,7 @@ public class CodeGenerator {
                 _while();
                 break;
             case 16:
-                jpf_save();
+                jpfSave();
                 break;
             case 17:
                 jpHere();
@@ -134,7 +134,7 @@ public class CodeGenerator {
                 equal();
                 break;
             case 20:
-                less_than();
+                lessThan();
                 break;
             case 21:
                 and();
@@ -221,9 +221,9 @@ public class CodeGenerator {
         this.getSymbolStack().push(next.value);
     }
 
-    private void pushAddress(Symbol s) {
+    private void pushAddress(Symbol symbol) {
         varType t = varType.Int;
-        switch (s.type) {
+        switch (symbol.type) {
             case Bool:
                 t = varType.Bool;
                 break;
@@ -231,7 +231,7 @@ public class CodeGenerator {
                 t = varType.Int;
                 break;
         }
-        Address address = new DirectAddress(s.address, t);
+        Address address = new DirectAddress(symbol.address, t);
         this.getSs().push(address);
     }
 
@@ -376,7 +376,7 @@ public class CodeGenerator {
         this.getMemory().add3AddressCode(Operation.JP, this.getSs().pop(), null, null);
     }
 
-    public void jpf_save() {
+    public void jpfSave() {
         Address save = new DirectAddress(this.getMemory().saveMemory(), varType.Address);
         Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
         this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JPF, this.getSs().pop(), address, null);
@@ -403,7 +403,7 @@ public class CodeGenerator {
         this.getSs().push(temp);
     }
 
-    public void less_than() {
+    public void lessThan() {
         Address temp = new DirectAddress(this.getMemory().getTemp(), varType.Bool);
         Address s2 = this.getSs().pop();
         Address s1 = this.getSs().pop();
@@ -520,6 +520,5 @@ public class CodeGenerator {
     }
 
     public void main() {
-
     }
 }
