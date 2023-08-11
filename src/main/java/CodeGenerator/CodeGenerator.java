@@ -1,15 +1,13 @@
 package CodeGenerator;
 
-import Log.Log;
 import CodeGenerator.Address.Address;
 import CodeGenerator.Address.DirectAddress;
 import CodeGenerator.Address.ImmediateAddress;
 import CodeGenerator.Address.IndirectAddress;
 import ErrorHandler.ErrorHandler;
+import Log.Log;
 import Scanner.token.Token;
-import semantic.Symbol.Symbol;
-import semantic.Symbol.SymbolTable;
-import semantic.Symbol.SymbolType;
+import semantic.Symbol.SymbolFacade;
 
 import java.util.Stack;
 
@@ -21,10 +19,10 @@ public class CodeGenerator {
     private Stack<Address> ss = new Stack<>();
     private Stack<String> symbolStack = new Stack<>();
     private Stack<String> callStack = new Stack<>();
-    private SymbolTable symbolTable;
+    private SymbolFacade symbolFacade;
 
     public CodeGenerator() {
-        this.setSymbolTable(new SymbolTable(this.getMemory()));
+        this.setSymbolFacade(new SymbolFacade(this.getMemory()));
     }
 
     public Memory getMemory() {
@@ -59,12 +57,12 @@ public class CodeGenerator {
         this.callStack = callStack;
     }
 
-    public SymbolTable getSymbolTable() {
-        return this.symbolTable;
+    public SymbolFacade getSymbolFacade() {
+        return symbolFacade;
     }
 
-    public void setSymbolTable(SymbolTable symbolTable) {
-        this.symbolTable = symbolTable;
+    public void setSymbolFacade(SymbolFacade symbolFacade) {
+        this.symbolFacade = symbolFacade;
     }
 
     public void printMemory() {
@@ -184,12 +182,11 @@ public class CodeGenerator {
         String methodName = "main";
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolTable().addMethod(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
+        this.getSymbolFacade().addMethod(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
 
         this.getSymbolStack().push(className);
         this.getSymbolStack().push(methodName);
     }
-
 
     private void checkID() {
         this.getSymbolStack().pop();
@@ -203,8 +200,10 @@ public class CodeGenerator {
             String methodName = this.getSymbolStack().pop();
             String className = this.getSymbolStack().pop();
             try {
-                Symbol s = this.getSymbolTable().get(className, methodName, next.value);
-                pushAddress(s);
+                String[] info = this.getSymbolFacade().getSymbolInfo(this.getSymbolFacade().get(className, methodName, next.value));
+                String type = info[0];
+                int symbolAddress = Integer.parseInt(info[1]);
+                pushAddress(type, symbolAddress);
             } catch (Exception e) {
                 Address address = new DirectAddress(0, varType.Non);
                 this.getSs().push(address);
@@ -218,17 +217,13 @@ public class CodeGenerator {
         this.getSymbolStack().push(next.value);
     }
 
-    private void pushAddress(Symbol symbol) {
-        varType t = varType.Int;
-        switch (symbol.type) {
-            case Bool:
-                t = varType.Bool;
-                break;
-            case Int:
-                t = varType.Int;
-                break;
+    private void pushAddress(String type, int symbolAddress) {
+        varType variableType = varType.Int;
+        if (type.equals("Bool")) {
+            variableType = varType.Bool;
         }
-        Address address = new DirectAddress(symbol.address, t);
+
+        Address address = new DirectAddress(symbolAddress, variableType);
         this.getSs().push(address);
     }
 
@@ -236,12 +231,17 @@ public class CodeGenerator {
         this.getSs().pop();
         this.getSs().pop();
 
-        Symbol s = this.getSymbolTable().get(this.getSymbolStack().pop(), this.getSymbolStack().pop());
-        pushAddress(s);
+        String first = this.getSymbolStack().pop();
+        String second = this.getSymbolStack().pop();
+        String[] info = this.getSymbolFacade().getSymbolInfo(this.getSymbolFacade().get(first, second));
+        String type = info[0];
+        int symbolAddress = Integer.parseInt(info[1]);
+
+        pushAddress(type, symbolAddress);
     }
 
     private void kpid(Token next) {
-        this.getSs().push(this.getSymbolTable().get(next.value));
+        this.getSs().push(this.getSymbolFacade().get(next.value));
     }
 
     private void intpid(Token next) {
@@ -254,7 +254,7 @@ public class CodeGenerator {
         this.getSs().pop();
         String methodName = this.getSymbolStack().pop();
         String className = this.getSymbolStack().pop();
-        this.getSymbolTable().startCall(className, methodName);
+        this.getSymbolFacade().startCall(className, methodName);
         this.getCallStack().push(className);
         this.getCallStack().push(methodName);
     }
@@ -263,49 +263,44 @@ public class CodeGenerator {
         String methodName = this.getCallStack().pop();
         String className = this.getCallStack().pop();
         try {
-            this.getSymbolTable().getNextParam(className, methodName);
+            this.getSymbolFacade().getNextParam(className, methodName);
             ErrorHandler.printError("The few argument pass for method");
         } catch (IndexOutOfBoundsException ignored) {
         }
-        varType t = varType.Int;
-        switch (this.getSymbolTable().getMethodReturnType(className, methodName)) {
-            case Int:
-                t = varType.Int;
-                break;
-            case Bool:
-                t = varType.Bool;
-                break;
+        varType variableType = varType.Int;
+        if (this.getSymbolFacade().getMethodReturnType(className, methodName).equals("Bool")) {
+            variableType = varType.Bool;
         }
-        Address temp = new DirectAddress(this.getMemory().getTemp(), t);
+
+        Address temp = new DirectAddress(this.getMemory().getTemp(), variableType);
         this.getSs().push(temp);
         Address address1 = new ImmediateAddress(temp.num, varType.Address);
-        Address address2 = new DirectAddress(this.getSymbolTable().getMethodReturnAddress(className, methodName), varType.Address);
+        Address address2 = new DirectAddress(this.getSymbolFacade().getMethodReturnAddress(className, methodName), varType.Address);
         this.getMemory().add3AddressCode(Operation.ASSIGN, address1, address2, null);
         Address address3 = new ImmediateAddress(this.getMemory().getCurrentCodeBlockAddress() + 2, varType.Address);
-        Address address4 = new DirectAddress(this.getSymbolTable().getMethodCallerAddress(className, methodName), varType.Address);
+        Address address4 = new DirectAddress(this.getSymbolFacade().getMethodCallerAddress(className, methodName), varType.Address);
         this.getMemory().add3AddressCode(Operation.ASSIGN, address3, address4, null);
-        Address address5 = new DirectAddress(this.getSymbolTable().getMethodAddress(className, methodName), varType.Address);
+        Address address5 = new DirectAddress(this.getSymbolFacade().getMethodAddress(className, methodName), varType.Address);
         this.getMemory().add3AddressCode(Operation.JP, address5, null, null);
     }
 
     private void arg() {
         String methodName = this.getCallStack().pop();
         try {
-            Symbol s = this.getSymbolTable().getNextParam(this.getCallStack().peek(), methodName);
-            varType t = varType.Int;
-            switch (s.type) {
-                case Bool:
-                    t = varType.Bool;
-                    break;
-                case Int:
-                    t = varType.Int;
-                    break;
+            String first = this.getCallStack().peek();
+            String[] info = this.getSymbolFacade().getSymbolInfo(this.getSymbolFacade().getNextParam(first, methodName));
+            String type = info[0];
+            int symbolAddress = Integer.parseInt(info[1]);
+            varType variableType = varType.Int;
+            if (type.equals("Bool")) {
+                variableType = varType.Bool;
             }
+
             Address param = this.getSs().pop();
-            if (param.varType != t) {
+            if (param.varType != variableType) {
                 ErrorHandler.printError("The argument type isn't match");
             }
-            Address address = new DirectAddress(s.address, t);
+            Address address = new DirectAddress(symbolAddress, variableType);
             this.getMemory().add3AddressCode(Operation.ASSIGN, param, address, null);
 
         } catch (IndexOutOfBoundsException e) {
@@ -435,7 +430,7 @@ public class CodeGenerator {
 
     private void defClass() {
         this.getSs().pop();
-        this.getSymbolTable().addClass(this.getSymbolStack().peek());
+        this.getSymbolFacade().addClass(this.getSymbolStack().peek());
     }
 
     private void defMethod() {
@@ -443,7 +438,7 @@ public class CodeGenerator {
         String methodName = this.getSymbolStack().pop();
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolTable().addMethod(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
+        this.getSymbolFacade().addMethod(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
 
         this.getSymbolStack().push(className);
         this.getSymbolStack().push(methodName);
@@ -455,12 +450,12 @@ public class CodeGenerator {
 
     private void extend() {
         this.getSs().pop();
-        this.getSymbolTable().setSuperClass(this.getSymbolStack().pop(), this.getSymbolStack().peek());
+        this.getSymbolFacade().setSuperClass(this.getSymbolStack().pop(), this.getSymbolStack().peek());
     }
 
     private void defField() {
         this.getSs().pop();
-        this.getSymbolTable().addField(this.getSymbolStack().pop(), this.getSymbolStack().peek());
+        this.getSymbolFacade().addField(this.getSymbolStack().pop(), this.getSymbolStack().peek());
     }
 
     private void defVar() {
@@ -470,7 +465,7 @@ public class CodeGenerator {
         String methodName = this.getSymbolStack().pop();
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolTable().addMethodLocalVariable(className, methodName, var);
+        this.getSymbolFacade().addMethodLocalVariable(className, methodName, var);
 
         this.getSymbolStack().push(className);
         this.getSymbolStack().push(methodName);
@@ -479,20 +474,18 @@ public class CodeGenerator {
     private void methodReturn() {
         String methodName = this.getSymbolStack().pop();
         Address s = this.getSs().pop();
-        SymbolType t = this.getSymbolTable().getMethodReturnType(this.getSymbolStack().peek(), methodName);
-        varType temp = varType.Int;
-        switch (t) {
-            case Int:
-                break;
-            case Bool:
-                temp = varType.Bool;
+        String type = this.getSymbolFacade().getMethodReturnType(this.getSymbolStack().peek(), methodName);
+        varType variableType = varType.Int;
+        if (type.equals("Bool")) {
+            variableType = varType.Bool;
         }
-        if (s.varType != temp) {
+
+        if (s.varType != variableType) {
             ErrorHandler.printError("The type of method and return address was not match");
         }
-        Address address1 = new IndirectAddress(this.getSymbolTable().getMethodReturnAddress(this.getSymbolStack().peek(), methodName), varType.Address);
+        Address address1 = new IndirectAddress(this.getSymbolFacade().getMethodReturnAddress(this.getSymbolStack().peek(), methodName), varType.Address);
         this.getMemory().add3AddressCode(Operation.ASSIGN, s, address1, null);
-        Address address2 = new DirectAddress(this.getSymbolTable().getMethodCallerAddress(this.getSymbolStack().peek(), methodName), varType.Address);
+        Address address2 = new DirectAddress(this.getSymbolFacade().getMethodCallerAddress(this.getSymbolStack().peek(), methodName), varType.Address);
         this.getMemory().add3AddressCode(Operation.JP, address2, null, null);
     }
 
@@ -502,18 +495,18 @@ public class CodeGenerator {
         String methodName = this.getSymbolStack().pop();
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolTable().addMethodParameter(className, methodName, param);
+        this.getSymbolFacade().addMethodParameter(className, methodName, param);
 
         this.getSymbolStack().push(className);
         this.getSymbolStack().push(methodName);
     }
 
     private void lastTypeBool() {
-        this.getSymbolTable().setLastType(SymbolType.Bool);
+        this.getSymbolFacade().setLastTypeBool();
     }
 
     private void lastTypeInt() {
-        this.getSymbolTable().setLastType(SymbolType.Int);
+        this.getSymbolFacade().setLastTypeInt();
     }
 
     private void main() {
