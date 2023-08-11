@@ -19,6 +19,10 @@ public class CodeGenerator {
     private Stack<String> callStack = new Stack<>();
     private SymbolTable symbolTable;
 
+    public CodeGenerator() {
+        this.setSymbolTable(new SymbolTable(this.getMemory()));
+    }
+
     public Memory getMemory() {
         return memory;
     }
@@ -57,10 +61,6 @@ public class CodeGenerator {
 
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
-    }
-
-    public CodeGenerator() {
-        this.setSymbolTable(new SymbolTable(this.getMemory()));
     }
 
     public void printMemory() {
@@ -175,7 +175,6 @@ public class CodeGenerator {
     }
 
     private void defMain() {
-        //ss.pop();
         this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, new Address(this.getMemory().getCurrentCodeBlockAddress(), varType.Address), null, null);
         String methodName = "main";
         String className = this.getSymbolStack().pop();
@@ -186,9 +185,7 @@ public class CodeGenerator {
         this.getSymbolStack().push(methodName);
     }
 
-    //    public void spid(Token next){
-//        symbolStack.push(next.value);
-//    }
+
     public void checkID() {
         this.getSymbolStack().pop();
         if (this.getSs().peek().varType == varType.Non) {
@@ -241,7 +238,6 @@ public class CodeGenerator {
                 break;
         }
         this.getSs().push(new Address(s.address, t));
-
     }
 
     public void kpid(Token next) {
@@ -253,7 +249,6 @@ public class CodeGenerator {
     }
 
     public void startCall() {
-        //TODO: method ok
         this.getSs().pop();
         this.getSs().pop();
         String methodName = this.getSymbolStack().pop();
@@ -261,12 +256,9 @@ public class CodeGenerator {
         this.getSymbolTable().startCall(className, methodName);
         this.getCallStack().push(className);
         this.getCallStack().push(methodName);
-
-        //symbolStack.push(methodName);
     }
 
     public void call() {
-        //TODO: method ok
         String methodName = this.getCallStack().pop();
         String className = this.getCallStack().pop();
         try {
@@ -288,15 +280,10 @@ public class CodeGenerator {
         this.getMemory().add3AddressCode(Operation.ASSIGN, new Address(temp.num, varType.Address, TypeAddress.Imidiate), new Address(this.getSymbolTable().getMethodReturnAddress(className, methodName), varType.Address), null);
         this.getMemory().add3AddressCode(Operation.ASSIGN, new Address(this.getMemory().getCurrentCodeBlockAddress() + 2, varType.Address, TypeAddress.Imidiate), new Address(this.getSymbolTable().getMethodCallerAddress(className, methodName), varType.Address), null);
         this.getMemory().add3AddressCode(Operation.JP, new Address(this.getSymbolTable().getMethodAddress(className, methodName), varType.Address), null, null);
-
-        //symbolStack.pop();
     }
 
     public void arg() {
-        //TODO: method ok
-
         String methodName = this.getCallStack().pop();
-//        String className = symbolStack.pop();
         try {
             Symbol s = this.getSymbolTable().getNextParam(this.getCallStack().peek(), methodName);
             varType t = varType.Int;
@@ -314,26 +301,18 @@ public class CodeGenerator {
             }
             this.getMemory().add3AddressCode(Operation.ASSIGN, param, new Address(s.address, t), null);
 
-//        symbolStack.push(className);
-
         } catch (IndexOutOfBoundsException e) {
             ErrorHandler.printError("Too many arguments pass for method");
         }
         this.getCallStack().push(methodName);
-
     }
 
     public void assign() {
         Address s1 = this.getSs().pop();
         Address s2 = this.getSs().pop();
-//        try {
         if (s1.varType != s2.varType) {
             ErrorHandler.printError("The type of operands in assign is different ");
         }
-//        }catch (NullPointerException d)
-//        {
-//            d.printStackTrace();
-//        }
         this.getMemory().add3AddressCode(Operation.ASSIGN, s1, s2, null);
     }
 
@@ -368,7 +347,6 @@ public class CodeGenerator {
             ErrorHandler.printError("In mult two operands must be integer");
         }
         this.getMemory().add3AddressCode(Operation.MULT, s1, s2, temp);
-//        memory.saveMemory();
         this.getSs().push(temp);
     }
 
@@ -487,8 +465,6 @@ public class CodeGenerator {
     }
 
     public void methodReturn() {
-        //TODO : call ok
-
         String methodName = this.getSymbolStack().pop();
         Address s = this.getSs().pop();
         SymbolType t = this.getSymbolTable().getMethodReturnType(this.getSymbolStack().peek(), methodName);
@@ -504,12 +480,9 @@ public class CodeGenerator {
         }
         this.getMemory().add3AddressCode(Operation.ASSIGN, s, new Address(this.getSymbolTable().getMethodReturnAddress(this.getSymbolStack().peek(), methodName), varType.Address, TypeAddress.Indirect), null);
         this.getMemory().add3AddressCode(Operation.JP, new Address(this.getSymbolTable().getMethodCallerAddress(this.getSymbolStack().peek(), methodName), varType.Address), null, null);
-
-        //symbolStack.pop();
     }
 
     public void defParam() {
-        //TODO : call Ok
         this.getSs().pop();
         String param = this.getSymbolStack().pop();
         String methodName = this.getSymbolStack().pop();
