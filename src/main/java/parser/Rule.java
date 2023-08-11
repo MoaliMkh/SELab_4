@@ -22,11 +22,8 @@ public class Rule {
             semanticAction = 0;
         }
         String[] splited = stringRule.split("->");
-//        try {
         LHS = NonTerminal.valueOf(splited[0]);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+
         RHS = new ArrayList<GrammarSymbol>();
         if (splited.length > 1) {
             String[] RHSs = splited[1].split(" ");
@@ -34,12 +31,7 @@ public class Rule {
                 try {
                     RHS.add(new GrammarSymbol(NonTerminal.valueOf(s)));
                 } catch (Exception e) {
-//                    try{
                     RHS.add(new GrammarSymbol(new Token(Token.getTyepFormString(s), s)));
-//                    }catch (IllegalArgumentException d){
-//                        d.printStackTrace();
-//                        Log.print(s);
-//                    }
                 }
             }
         }
