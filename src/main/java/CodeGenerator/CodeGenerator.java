@@ -171,21 +171,26 @@ public class CodeGenerator {
                 lastTypeInt();
                 break;
             case 33:
-                defMain();
+                String[] queries = queryMain();
+                modifyMain(queries);
                 break;
         }
     }
 
-    private void defMain() {
+    private String[] queryMain() {
         Address address = new DirectAddress(this.getMemory().getCurrentCodeBlockAddress(), varType.Address);
         this.getMemory().add3AddressCode(this.getSs().pop().num, Operation.JP, address, null, null);
         String methodName = "main";
         String className = this.getSymbolStack().pop();
 
-        this.getSymbolFacade().addMethodToTable(className, methodName, this.getMemory().getCurrentCodeBlockAddress());
+        return new String[]{className, methodName};
+    }
 
-        this.getSymbolStack().push(className);
-        this.getSymbolStack().push(methodName);
+    private void modifyMain(String[] queries) {
+        this.getSymbolFacade().addMethodToTable(queries[0], queries[1], this.getMemory().getCurrentCodeBlockAddress());
+
+        this.getSymbolStack().push(queries[0]);
+        this.getSymbolStack().push(queries[1]);
     }
 
     private void checkID() {
