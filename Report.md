@@ -19,7 +19,7 @@
 
 <img width="1481" alt="Screenshot 1402-05-21 at 00 05 47" src="https://github.com/MoaliMkh/SELab_4/assets/59166192/83869c25-3e53-4251-b9b4-75ea64ac760e">
 
-### Facade in parser
+### Facade in Symbol
 مورد دومی که از بازآرایی facade در این آزمایش وجود دارد، این است که در کلاس CodeGenerator، ارتباط‌های زیادی با کلاس‌های concrete از Symbol وجود دارد. به همین علت، برای کلاس symbol، مطابق شکل زیر، یک واسط SymbolFacade ایجاد شده است که پس از این تمام ارتباط‌های این دو کلاس از طریق این واسط انجام بشود:
 
 <img width="1512" alt="Screenshot 1402-05-21 at 08 56 53" src="https://github.com/MoaliMkh/SELab_4/assets/59166192/ed61d78b-f79a-469b-aafb-1a19e48d3efe">
